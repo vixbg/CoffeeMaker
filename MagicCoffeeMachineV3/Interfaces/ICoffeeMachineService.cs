@@ -10,10 +10,6 @@
 
         void StandBy();
 
-        void RefillMilk();
-
-        void RefillBeans();
-
         Task MakeCoffee(BeverageType beverageType);
     }
 }

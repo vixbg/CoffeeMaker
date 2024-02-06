@@ -5,21 +5,18 @@
 
     public class CoffeeGrinderService : ICoffeeGrinderService
     {
-        public IPersistenceService _persistenceService;
         private readonly int _grinderCoffeePortion = 1;
 
-        public CoffeeGrinderService(IPersistenceService persistenceService)
-        {
-            _persistenceService = persistenceService;
-        }
+        public CoffeeGrinderService() { }
 
-        public Container GrindBeans(Container containerState)
+        public Container GrindBeans(Container container)
         {
-            if (containerState.BeansAmount > 0)
+            if (container.BeansAmount > 0)
             {
-                containerState.BeansAmount -= _grinderCoffeePortion;                
+                container.BeansAmount -= _grinderCoffeePortion;
             }
-            return containerState;
+
+            return container;
         }
     }
 }

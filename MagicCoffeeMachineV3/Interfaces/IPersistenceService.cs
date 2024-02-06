@@ -4,8 +4,8 @@
 
     public interface IPersistenceService
     {
-        Container GetContainerState();
+        Container GetContainer();
 
-        bool UpdateContainerState(Container containerState);
+        bool UpdateContainer(Container containerState);
     }
 }

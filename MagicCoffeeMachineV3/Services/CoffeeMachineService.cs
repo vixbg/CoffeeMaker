@@ -57,7 +57,7 @@
                 TurnOn();
             }
 
-            var container = _persistenceService.GetContainerState();
+            var container = _persistenceService.GetContainer();
             if (container.BeansAmount < 1)
             {
                 // TODO: Order from Cloud
@@ -72,38 +72,24 @@
                 return;
             }
 
-            var isWaterHeated = _heaterService.IsWaterHeated();
-
-            if (!isWaterHeated)
+            if (!_heaterService.IsWaterHeated())
             {
                 Console.WriteLine("Heating water...");
                 await _heaterService.HeaterOnAsync();
-            }            
+            }
 
             Console.WriteLine("Grinding beans...");
-            container = _coffeeGrinderService.GrindBeans(container);
+            var changedContainer = _coffeeGrinderService.GrindBeans(container);
 
             if (beverageType == BeverageType.CoffeeWithMilk)
             {
-                container.MilkAmount -= _milkPortion;
+                changedContainer.MilkAmount -= _milkPortion;
             }
 
-            _persistenceService.UpdateContainerState(container);
+            _persistenceService.UpdateContainer(changedContainer);
 
             Console.WriteLine($"Your {beverageType} is ready!");
             StandBy();
         }
-
-
-        public void RefillBeans()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RefillMilk()
-        {
-            throw new NotImplementedException();
-        }
-
     }
 }
