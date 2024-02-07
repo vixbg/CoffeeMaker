@@ -18,7 +18,7 @@ https://github.com/vixbg/CoffeeMaker.git
 
 ### Prerequisites
 
-- .NET 5.0 SDK or later
+- .NET 8.0 SDK or later
 - Visual Studio 2019 or later
 
 ### Running the Project
