@@ -2,94 +2,169 @@
 {
     using MagicCoffeeMachineV3.Enums;
     using MagicCoffeeMachineV3.Interfaces;
+    using System.ComponentModel;
+    using System.Reflection;
+    using Container = Models.Container;
 
     public class CoffeeMachineService : ICoffeeMachineService
     {
-        public IPersistenceService _persistenceService;
-        public IHeaterService _heaterService;
-        public ICoffeeGrinderService _coffeeGrinderService;
-        private CoffeeMachineStatus _status;
-        private readonly int _milkPortion = 1;
+        public IPersistenceService PersistenceService;
+        public IHeaterService HeaterService;
+        public ICoffeeGrinderService CoffeeGrinderService;
+        private CoffeeMachineStatus Status;
+        private Queue<string> MessageQueue = new Queue<string>();
+        private readonly int MilkPortion = 1;
+        private readonly int BrewingTimeMiliseconds = 2000;
+        private readonly int TunrOffTimeMiliseconds = 1500;
+        private readonly int MaxMilkAmount = 5;
+        private readonly int MaxBeansAmount = 10;
 
         public CoffeeMachineService(IPersistenceService persistenceService, IHeaterService heaterService, ICoffeeGrinderService coffeeGrinderService)
         {
-            _coffeeGrinderService = coffeeGrinderService;
-            _heaterService = heaterService;
-            _persistenceService = persistenceService;
-            _status = CoffeeMachineStatus.Off;
+            CoffeeGrinderService = coffeeGrinderService;
+            HeaterService = heaterService;
+            this.PersistenceService = persistenceService;
+            Status = CoffeeMachineStatus.Off;
         }
 
-        public async void TurnOn()
+        public async Task PowerOnOff()
         {
-            Console.WriteLine("Machine is turning ON...");
-
-            if (!_heaterService.IsWaterHeated())
+            if (Status == CoffeeMachineStatus.Off)
             {
-                Console.WriteLine("Machine is preheating water.");
-                await _heaterService.HeaterOnAsync();
+                await TurnOn();
+            }
+            else
+            {
+                await TurnOff();
+            }
+        }
+
+        public async Task TurnOn()
+        {
+            if(Status != CoffeeMachineStatus.StandBy)
+            {
+                MessageQueue.Enqueue("Machine is turning ON...");
+            }            
+
+            if (!HeaterService.IsWaterHeated())
+            {
+                MessageQueue.Enqueue("Machine is preheating water.");                
+                await HeaterService.HeaterOnAsync();
             }
 
-            _status = CoffeeMachineStatus.On;
-            Console.WriteLine("Machine is ON and READY.");
+            Status = CoffeeMachineStatus.On;
+            MessageQueue.Enqueue("Machine is ON and READY.");            
         }
 
-        public void TurnOff()
+        public async Task TurnOff()
         {
-            _status = CoffeeMachineStatus.Off;
-            Console.WriteLine("Machine is OFF.");
+            Status = CoffeeMachineStatus.Off;
+            MessageQueue.Enqueue("Machine is turning OFF...");
+            await Task.Delay(TunrOffTimeMiliseconds);
+            MessageQueue.Enqueue("Machine is OFF");
         }
 
         public void StandBy()
         {
-            _status = CoffeeMachineStatus.StandBy;
-            Console.WriteLine("Machine is on STANDBY.");
+            Status = CoffeeMachineStatus.StandBy;
+            MessageQueue.Enqueue("Machine is on STANDBY.");
         }
 
         public async Task MakeCoffee(BeverageType beverageType)
         {
-            if (_status != CoffeeMachineStatus.On)
+            if (Status == CoffeeMachineStatus.StandBy)
             {
-                Console.WriteLine("Machine is not ON. Please turn on the machine first.");
+                await TurnOn();
+            }
+            else if (Status != CoffeeMachineStatus.On)
+            {
+                MessageQueue.Enqueue("Machine is not ON. Please turn on the machine first.");
                 return;
-            }
-            else if (_status == CoffeeMachineStatus.StandBy)
-            {
-                TurnOn();
-            }
+            }            
 
-            var container = _persistenceService.GetContainer();
+            var container = PersistenceService.GetContainer();
             if (container.BeansAmount < 1)
             {
                 // TODO: Order from Cloud
-                Console.WriteLine("Not enough beans to make coffee. Please refill beans.");
+                MessageQueue.Enqueue("Not enough beans to make coffee. Please refill beans.");
                 return;
             }
 
             if (beverageType == BeverageType.CoffeeWithMilk && container.MilkAmount < 1)
             {
                 // TODO: Order from Cloud
-                Console.WriteLine("Not enough milk to make coffee with milk. Please refill milk.");
+                MessageQueue.Enqueue("Not enough milk to make coffee with milk. Please refill milk.");
                 return;
             }
 
-            if (!_heaterService.IsWaterHeated())
+            if (!HeaterService.IsWaterHeated())
             {
-                Console.WriteLine("Heating water...");
-                await _heaterService.HeaterOnAsync();
+                MessageQueue.Enqueue("Heating water...");
+                await HeaterService.HeaterOnAsync();
             }
 
-            Console.WriteLine("Grinding beans...");
-            var changedContainer = _coffeeGrinderService.GrindBeans(container);
+            MessageQueue.Enqueue("Grinding beans...");
+            var changedContainer = await CoffeeGrinderService.GrindBeans(container);
 
             if (beverageType == BeverageType.CoffeeWithMilk)
             {
-                changedContainer.MilkAmount -= _milkPortion;
+                changedContainer.MilkAmount -= MilkPortion;
             }
 
-            _persistenceService.UpdateContainer(changedContainer);
+            MessageQueue.Enqueue("Preparing your drink...");
+            await Task.Delay(BrewingTimeMiliseconds);
+            PersistenceService.UpdateContainer(changedContainer);
 
-            Console.WriteLine($"Your {beverageType} is ready!");
+            MessageQueue.Enqueue($"Your {GetEnumDescription(beverageType)} is ready!");
             StandBy();
+        }
+
+        public Container GetContainerStatus()
+        {
+            return PersistenceService.GetContainer();
+        }
+
+        public void RefillContainer(string containerType)
+        {
+            var container = PersistenceService.GetContainer();
+            switch (containerType.ToLower())
+            {
+                case "beans":
+                    container.BeansAmount = MaxBeansAmount;
+                    MessageQueue.Enqueue("Beans container refilled.");
+                    break;
+                case "milk":
+                    container.MilkAmount = MaxMilkAmount;
+                    MessageQueue.Enqueue("Milk container refilled.");
+                    break;
+                default:
+                    MessageQueue.Enqueue("Invalid container type.");
+                    break;
+            }
+            PersistenceService.UpdateContainer(container);
+        }
+
+        public IEnumerable<string> RetrieveMessages()
+        {
+            List<string> messages = new List<string>();
+            while (MessageQueue.Count > 0)
+            {
+                messages.Add(MessageQueue.Dequeue());
+            }
+            return messages;
+        }
+
+        private static string GetEnumDescription(Enum value)
+        {
+            FieldInfo fi = value.GetType().GetField(value.ToString())!;
+
+            DescriptionAttribute[] attributes =
+                (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
+
+            if (attributes != null && attributes.Length > 0)
+                return attributes[0].Description;
+            else
+                return value.ToString();
         }
     }
 }

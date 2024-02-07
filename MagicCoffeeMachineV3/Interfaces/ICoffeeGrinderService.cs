@@ -4,6 +4,6 @@
 
     public interface ICoffeeGrinderService
     {
-        Container GrindBeans(Container containerState);
+        Task<Container> GrindBeans(Container containerState);
     }
 }

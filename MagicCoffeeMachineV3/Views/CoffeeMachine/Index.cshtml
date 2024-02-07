@@ -1,0 +1,106 @@
+﻿@using MagicCoffeeMachineV3.Enums
+@{
+    ViewData["Title"] = "Coffee Machine";
+}
+
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" />
+
+<div class="text-center">
+    <h2>Coffee Machine Control Panel</h2>
+
+    <div class="my-3">
+        <form asp-action="PowerOnOff" method="post">
+            <button type="submit" class="btn btn-primary">Power On/Off</button>
+        </form>
+    </div>
+    <div class="my-3">
+        <form asp-action="MakeCoffee" method="post" class="d-inline">
+            <input type="hidden" name="type" value="@((int)BeverageType.BlackCoffee)" />
+            <button type="submit" class="btn btn-secondary">Make Black Coffee</button>
+        </form>
+        <form asp-action="MakeCoffee" method="post" class="d-inline">
+            <input type="hidden" name="type" value="@((int)BeverageType.CoffeeWithMilk)" />
+            <button type="submit" class="btn btn-secondary">Make Coffee With Milk</button>
+        </form>
+    </div>
+
+    <div id="messageDisplayArea" class="console"></div>
+
+    <div class="btn-group my-3" role="group" aria-label="Refill Buttons">
+        <button id="refillBeansButton" class="btn btn-info mr-2">Refill Beans</button>
+        <button id="refillMilkButton" class="btn btn-info">Refill Milk</button>
+    </div>
+    <div class="my-3">
+        <button id="statusButton" class="btn btn-secondary">Get Container Status</button>
+    </div>    
+</div>
+
+<style>
+    .console {
+        background-color: black;
+        color: #00ff00;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 18px;
+        padding: 20px;
+        margin-top: 20px;
+        width: 100%;
+        height: 200px;
+        overflow: auto;
+    }
+</style>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript">
+    function fetchMessages() {
+        $.ajax({
+            url: '@Url.Action("GetMachineMessages", "CoffeeMachine")',
+            type: 'GET',
+            dataType: 'json',
+            success: function (messages) {
+                if (messages.length > 0) {
+                    var displayArea = $('#messageDisplayArea');
+                    displayArea.empty();
+                    messages.forEach(function (message) {
+                        displayArea.append($('<div>').text(message));
+                    });
+                }
+            },
+            complete: function () {
+                setTimeout(fetchMessages, 500);
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        fetchMessages();
+    });
+
+    function refillContainer(containerType) {
+        $.ajax({
+            url: '@Url.Action("RefillContainer", "CoffeeMachine")',
+            type: 'POST',
+            data: { containerType: containerType },
+            success: function (response) {
+                $('#messageDisplayArea').text(response);
+            }
+        });
+    }
+
+    $('#refillBeansButton').click(function () {
+        refillContainer('beans');
+    });
+
+    $('#refillMilkButton').click(function () {
+        refillContainer('milk');
+    });
+
+    $('#statusButton').click(function () {
+        $.ajax({
+            url: '@Url.Action("GetContainerStatus", "CoffeeMachine")',
+            type: 'GET',
+            success: function (status) {
+                $('#messageDisplayArea').text(`Beans: ${status.beansAmount}, Milk: ${status.milkAmount}`);
+            }
+        });
+    });
+</script>

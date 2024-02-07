@@ -6,27 +6,27 @@
 
     public class PersistenceService : IPersistenceService
     {
-        private readonly string _filePath;
-        private readonly int _maxMilkAmount = 5;
-        private readonly int _maxBeansAmount = 10;
+        private readonly string FilePath;
+        private readonly int MaxMilkAmount = 5;
+        private readonly int MaxBeansAmount = 10;
 
         public PersistenceService(string containerStateFilePath)
         {
-            _filePath = containerStateFilePath;
+            FilePath = containerStateFilePath;
         }
 
         public Container GetContainer()
         {
-            if (!File.Exists(_filePath))
+            if (!File.Exists(FilePath))
             {
-                var initialState = new Container { MilkAmount = _maxMilkAmount, BeansAmount = _maxBeansAmount };
-                File.WriteAllText(_filePath, JsonConvert.SerializeObject(initialState));
+                var initialState = new Container { MilkAmount = MaxMilkAmount, BeansAmount = MaxBeansAmount };
+                File.WriteAllText(FilePath, JsonConvert.SerializeObject(initialState));
                 return initialState;
             }
 
-            var json = File.ReadAllText(_filePath);
-            var containerState = JsonConvert.DeserializeObject<Container>(json);
-            return containerState!;
+            var json = File.ReadAllText(FilePath);
+            var container = JsonConvert.DeserializeObject<Container>(json);
+            return container!;
         }
 
         public bool UpdateContainer(Container containerState)
@@ -34,7 +34,7 @@
             try
             {
                 var json = JsonConvert.SerializeObject(containerState);
-                File.WriteAllText(_filePath, json);
+                File.WriteAllText(FilePath, json);
                 return true;
             }
             catch (Exception ex)

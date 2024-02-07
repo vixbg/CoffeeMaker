@@ -5,16 +5,19 @@
 
     public class CoffeeGrinderService : ICoffeeGrinderService
     {
-        private readonly int _grinderCoffeePortion = 1;
+        private readonly int GrinderCoffeePortion = 1;
+        private readonly int GrindingTimeMiliseconds = 2000;
 
         public CoffeeGrinderService() { }
 
-        public Container GrindBeans(Container container)
+        public async Task<Container> GrindBeans(Container container)
         {
             if (container.BeansAmount > 0)
             {
-                container.BeansAmount -= _grinderCoffeePortion;
+                await Task.Delay(GrindingTimeMiliseconds);
+                container.BeansAmount -= GrinderCoffeePortion;
             }
+
 
             return container;
         }

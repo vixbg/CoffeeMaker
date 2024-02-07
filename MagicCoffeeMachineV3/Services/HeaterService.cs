@@ -4,25 +4,25 @@
 
     public class HeaterService : IHeaterService
     {
-        private DateTime? _lastHeatedTime = null;
-        private readonly int _heatingTimeMilliseconds = 2000;
-        private readonly int _heatingThresholdSeconds = 5;
+        private DateTime? LastHeatedTime = null;
+        private readonly int HeatingTimeMilliseconds = 2000;
+        private readonly int HeatingThresholdSeconds = 15;
 
         public HeaterService() { }
 
         public async Task<bool> HeaterOnAsync()
         {
-            _lastHeatedTime = DateTime.Now;
-            await Task.Delay(_heatingTimeMilliseconds);
+            LastHeatedTime = DateTime.Now;
+            await Task.Delay(HeatingTimeMilliseconds);
 
             return true;
         }
 
         public bool IsWaterHeated()
         {
-            if (_lastHeatedTime.HasValue)
+            if (LastHeatedTime.HasValue)
             {
-                return (DateTime.Now - _lastHeatedTime.Value).TotalSeconds <= _heatingThresholdSeconds;
+                return (DateTime.Now - LastHeatedTime.Value).TotalSeconds <= HeatingThresholdSeconds;
             }
             return false;
         }
