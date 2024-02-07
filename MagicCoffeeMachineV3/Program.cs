@@ -9,6 +9,7 @@ builder.Services.AddSingleton<IPersistenceService>(provider => new PersistenceSe
 builder.Services.AddSingleton<ICoffeeMachineService, CoffeeMachineService>();
 builder.Services.AddSingleton<IHeaterService, HeaterService>();
 builder.Services.AddSingleton<ICoffeeGrinderService, CoffeeGrinderService>();
+builder.Services.AddHttpClient<ICloudService, CloudService>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

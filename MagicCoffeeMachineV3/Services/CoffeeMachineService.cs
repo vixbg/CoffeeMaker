@@ -11,6 +11,7 @@
         public IPersistenceService PersistenceService;
         public IHeaterService HeaterService;
         public ICoffeeGrinderService CoffeeGrinderService;
+        public ICloudService CloudService;
         private CoffeeMachineStatus Status;
         private Queue<string> MessageQueue = new Queue<string>();
         private readonly int MilkPortion = 1;
@@ -19,12 +20,13 @@
         private readonly int MaxMilkAmount = 5;
         private readonly int MaxBeansAmount = 10;
 
-        public CoffeeMachineService(IPersistenceService persistenceService, IHeaterService heaterService, ICoffeeGrinderService coffeeGrinderService)
+        public CoffeeMachineService(IPersistenceService persistenceService, IHeaterService heaterService, ICoffeeGrinderService coffeeGrinderService, ICloudService cloudService)
         {
             CoffeeGrinderService = coffeeGrinderService;
             HeaterService = heaterService;
             this.PersistenceService = persistenceService;
             Status = CoffeeMachineStatus.Off;
+            CloudService = cloudService;
         }
 
         public async Task PowerOnOff()
@@ -41,19 +43,19 @@
 
         public async Task TurnOn()
         {
-            if(Status != CoffeeMachineStatus.StandBy)
+            if (Status != CoffeeMachineStatus.StandBy)
             {
                 MessageQueue.Enqueue("Machine is turning ON...");
-            }            
+            }
 
             if (!HeaterService.IsWaterHeated())
             {
-                MessageQueue.Enqueue("Machine is preheating water.");                
+                MessageQueue.Enqueue("Machine is preheating water.");
                 await HeaterService.HeaterOnAsync();
             }
 
             Status = CoffeeMachineStatus.On;
-            MessageQueue.Enqueue("Machine is ON and READY.");            
+            MessageQueue.Enqueue("Machine is ON and READY.");
         }
 
         public async Task TurnOff()
@@ -80,20 +82,20 @@
             {
                 MessageQueue.Enqueue("Machine is not ON. Please turn on the machine first.");
                 return;
-            }            
+            }
 
             var container = PersistenceService.GetContainer();
             if (container.BeansAmount < 1)
             {
-                // TODO: Order from Cloud
                 MessageQueue.Enqueue("Not enough beans to make coffee. Please refill beans.");
+                await CloudService.NotifyMaintenanceNeededAsync();
                 return;
             }
 
             if (beverageType == BeverageType.CoffeeWithMilk && container.MilkAmount < 1)
             {
-                // TODO: Order from Cloud
                 MessageQueue.Enqueue("Not enough milk to make coffee with milk. Please refill milk.");
+                await CloudService.NotifyMilkRefillNeededAsync();
                 return;
             }
 
