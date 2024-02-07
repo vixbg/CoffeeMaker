@@ -1,6 +1,0 @@
-@MagicCoffeeMachineV3Cloud_HostAddress = http://localhost:5174
-
-GET {{MagicCoffeeMachineV3Cloud_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

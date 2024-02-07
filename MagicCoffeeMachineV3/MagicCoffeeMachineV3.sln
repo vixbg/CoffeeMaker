@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicCoffeeMachineV3", "Mag
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicCoffeeMachineV3Cloud", "..\MagicCoffeeMachineV3Cloud\MagicCoffeeMachineV3Cloud.csproj", "{163D6979-C178-4DB9-9BA1-FDA6DDF06DC4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicCoffeeMachineV3.Tests", "..\MagicCoffeeMachineV3.Tests\MagicCoffeeMachineV3.Tests.csproj", "{AFF8B427-5C81-4D63-9C62-DB82D4927D17}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{163D6979-C178-4DB9-9BA1-FDA6DDF06DC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{163D6979-C178-4DB9-9BA1-FDA6DDF06DC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{163D6979-C178-4DB9-9BA1-FDA6DDF06DC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFF8B427-5C81-4D63-9C62-DB82D4927D17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFF8B427-5C81-4D63-9C62-DB82D4927D17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFF8B427-5C81-4D63-9C62-DB82D4927D17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFF8B427-5C81-4D63-9C62-DB82D4927D17}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

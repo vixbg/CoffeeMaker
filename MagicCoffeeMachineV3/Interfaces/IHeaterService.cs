@@ -2,7 +2,7 @@
 {
     public interface IHeaterService
     {
-        Task<bool> HeaterOnAsync();
+        Task HeaterOnAsync();
 
         bool IsWaterHeated();
     }

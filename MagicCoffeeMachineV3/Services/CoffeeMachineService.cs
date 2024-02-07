@@ -12,7 +12,7 @@
         public IHeaterService HeaterService;
         public ICoffeeGrinderService CoffeeGrinderService;
         public ICloudService CloudService;
-        private CoffeeMachineStatus Status;
+        public CoffeeMachineStatus Status;
         private Queue<string> MessageQueue = new Queue<string>();
         private readonly int MilkPortion = 1;
         private readonly int BrewingTimeMiliseconds = 2000;
@@ -87,7 +87,7 @@
             var container = PersistenceService.GetContainer();
             if (container.BeansAmount < 1)
             {
-                MessageQueue.Enqueue("Not enough beans to make coffee. Please refill beans.");
+                MessageQueue.Enqueue("Not enough beans to make coffee. Please refill coffee beans.");
                 await CloudService.NotifyMaintenanceNeededAsync();
                 return;
             }

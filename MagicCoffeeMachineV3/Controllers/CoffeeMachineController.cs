@@ -6,11 +6,11 @@
 
     public class CoffeeMachineController : Controller
     {
-        private readonly ICoffeeMachineService _coffeeMachineService;
+        private readonly ICoffeeMachineService CoffeeMachineService;
 
         public CoffeeMachineController(ICoffeeMachineService coffeeMachineService)
         {
-            _coffeeMachineService = coffeeMachineService;
+            CoffeeMachineService = coffeeMachineService;
         }
 
         public IActionResult Index()
@@ -21,35 +21,35 @@
         [HttpGet]
         public IActionResult GetContainerStatus()
         {
-            var containerStatus = _coffeeMachineService.GetContainerStatus();
+            var containerStatus = CoffeeMachineService.GetContainerStatus();
             return Json(containerStatus);
         }
 
         [HttpGet]
         public IActionResult GetMachineMessages()
         {
-            var messages = _coffeeMachineService.RetrieveMessages();
+            var messages = CoffeeMachineService.RetrieveMessages();
             return Json(messages);
         }
 
         [HttpPost]
         public async Task<IActionResult> PowerOnOff()
         {
-            await _coffeeMachineService.PowerOnOff();
+            await CoffeeMachineService.PowerOnOff();
             return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
         public async Task<IActionResult> MakeCoffee(BeverageType type)
         {
-            await _coffeeMachineService.MakeCoffee(type);
+            await CoffeeMachineService.MakeCoffee(type);
             return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
         public IActionResult RefillContainer(string containerType)
         {
-            _coffeeMachineService.RefillContainer(containerType);
+            CoffeeMachineService.RefillContainer(containerType);
             return Ok();
         }
     }

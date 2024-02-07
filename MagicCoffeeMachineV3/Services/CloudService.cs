@@ -18,7 +18,7 @@
         public async Task NotifyMaintenanceNeededAsync()
         {
             var content = new StringContent(
-                JsonConvert.SerializeObject(new { message = "Need more beans" }),
+                JsonConvert.SerializeObject(new { message = "Machine is out of coffee beans" }),
                 Encoding.UTF8,
                 "application/json"
             );

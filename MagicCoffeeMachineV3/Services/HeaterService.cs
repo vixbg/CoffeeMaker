@@ -10,12 +10,12 @@
 
         public HeaterService() { }
 
-        public async Task<bool> HeaterOnAsync()
+        public async Task HeaterOnAsync()
         {
             LastHeatedTime = DateTime.Now;
             await Task.Delay(HeatingTimeMilliseconds);
 
-            return true;
+            return;
         }
 
         public bool IsWaterHeated()
