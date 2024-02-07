@@ -1,5 +1,3 @@
-# CoffeeMaker
-
 # Magic Coffee Machine V3
 
 This project simulates a virtual coffee machine as a part of the interview process for a famous coffee brand.
