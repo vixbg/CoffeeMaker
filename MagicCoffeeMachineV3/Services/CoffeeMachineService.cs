@@ -104,6 +104,10 @@
                 MessageQueue.Enqueue("Heating water...");
                 await HeaterService.HeaterOnAsync();
             }
+            else
+            {
+                await HeaterService.HeaterOnAsync();
+            }
 
             MessageQueue.Enqueue("Grinding beans...");
             var changedContainer = await CoffeeGrinderService.GrindBeans(container);

@@ -6,7 +6,7 @@
     {
         private DateTime? LastHeatedTime = null;
         private readonly int HeatingTimeMilliseconds = 2000;
-        private readonly int HeatingThresholdSeconds = 15;
+        private readonly int HeatingThresholdSeconds = 10;
 
         public HeaterService() { }
 
